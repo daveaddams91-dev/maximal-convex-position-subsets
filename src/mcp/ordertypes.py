@@ -30,7 +30,10 @@ from __future__ import annotations
 
 import hashlib
 import itertools
+import pickle
+import time
 from fractions import Fraction
+from pathlib import Path
 from typing import Sequence
 
 import numpy as np
@@ -222,32 +225,34 @@ Point2 = tuple[Fraction, Fraction]
 # --------------------------------------------------------------------------- #
 
 
-def enumerate_order_types_up_to(n_max: int, progress=None):
+def enumerate_order_types_up_to(n_max: int, progress=None, cache_dir=None):
     """All order types for each ``n = 1, 2, ..., n_max``.
 
     Returns ``{n: {signature: (chirotope, representative_configuration)}}`` where
     the representative is an exact rational configuration realising the order type
     and labelled ``0, ..., n-1``.
+
+    ``cache_dir``, if given, stores each level as a pickle so that repeated runs
+    (or the continuation to a larger ``n_max``) do not repeat earlier levels.
     """
     levels: dict[int, dict[bytes, tuple[Chirotope, Configuration]]] = {}
-    # Level 1
-    base = [Fraction(0), Fraction(0)]
-    levels[1] = {order_type_signature((Fraction(0), Fraction(0)), 1): ((0,), [(base[0], base[1])])}
-    if n_max <= 1:
-        return levels
-    levels[2] = {
-        order_type_signature((Fraction(0), Fraction(0)), 2): (
-            (0,),
-            [(Fraction(0), Fraction(0)), (Fraction(1), Fraction(0))],
-        )
-    }
-    if n_max <= 2:
-        return levels
-
-    for n in range(3, n_max + 1):
+    if cache_dir is not None:
+        Path(cache_dir).mkdir(parents=True, exist_ok=True)
+    for n in range(1, n_max + 1):
+        path = Path(cache_dir) / f"ordertypes_n{n}.pkl" if cache_dir is not None else None
+        if path is not None and path.exists():
+            with path.open("rb") as fh:
+                levels[n] = pickle.load(fh)
+            if progress is not None:
+                progress(n, len(levels[n]), cached=True)
+            continue
+        if n <= 2:
+            levels[n] = _trivial_level(n)
+            continue
+        prev = levels[n - 1]
         found: dict[bytes, tuple[Chirotope, Configuration]] = {}
-        parents = list(levels[n - 1].values())
-        for ch_p, Q in parents:
+        t0 = time.time()
+        for k, (ch_p, Q) in enumerate(prev.values()):
             for p in arrangement_cell_representatives(Q):
                 Qn = list(Q) + [p]
                 ch = chirotope_of(Qn)
@@ -255,13 +260,26 @@ def enumerate_order_types_up_to(n_max: int, progress=None):
                 # pair of the parent points, but we assert it rather than trust it.
                 if 0 in ch:
                     raise AssertionError(
-                        "arrangement cell representative is degenerate: "
-                        f"{Qn} has a collinear triple"
+                        f"arrangement cell representative is degenerate: {Qn}"
                     )
                 sig = order_type_signature(ch, n)
                 if sig not in found:
                     found[sig] = (ch, Qn)
-            if progress is not None:
-                progress(n, len(found))
+            if progress is not None and k % 50 == 0:
+                progress(n, len(found), cached=False)
         levels[n] = found
+        if progress is not None:
+            progress(n, len(found), cached=False, elapsed=time.time() - t0)
+        if path is not None:
+            tmp = path.with_suffix(".tmp")
+            with tmp.open("wb") as fh:
+                pickle.dump(found, fh)
+            tmp.replace(path)
     return levels
+
+
+def _trivial_level(n: int) -> dict[bytes, tuple[Chirotope, Configuration]]:
+    z, o = Fraction(0), Fraction(1)
+    if n == 1:
+        return {b"tiny": ((0,), [(z, z)])}
+    return {b"tiny": ((0,), [(z, z), (o, z)])}

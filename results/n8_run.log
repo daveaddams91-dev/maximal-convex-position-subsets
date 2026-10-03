@@ -1,0 +1,16 @@
+    [n=3] 1 order types (cached)  t=0.0s
+    [n=4] 2 order types (cached)  t=0.0s
+    [n=5] 3 order types (cached)  t=0.0s
+    [n=6] 16 order types (cached)  t=0.1s
+    [n=7] 135 order types (cached)  t=0.1s
+    [n=8] 111 order types (...)  t=31.8s
+    [n=8] 1962 order types (...)  t=984.7s
+    [n=8] 2957 order types (...)  t=1774.6s
+    [n=8] 3288 order types (2436s)  t=2436.4s
+n=3: f(n) = 1   (order types: 1)
+n=4: f(n) = 4   (order types: 2)
+n=5: f(n) = 7   (order types: 3)
+n=6: f(n) = 11   (order types: 16)
+n=7: f(n) = 20   (order types: 135)
+n=8: f(n) = 38   (order types: 3288)
+wrote C:\Users\davea\OneDrive\Desktop\maximal-convex-polygons\results\f_exhaustive_n8.json total 2650.9s
