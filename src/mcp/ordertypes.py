@@ -146,19 +146,82 @@ def _lines_through_pairs(Q: Configuration) -> list[tuple[int, int, Fraction, Fra
     return out
 
 
+def _generic_rotation(Q: Configuration) -> tuple[Fraction, Fraction, Fraction, Fraction]:
+    """A rational rotation ``(x,y) -> (u x - v y, v x + u y)`` making y-coordinates distinct.
+
+    Rotation preserves the arrangement's combinatorics, so this is free.  We need
+    ``v (x_i - x_j) + u (y_i - y_j) != 0`` for all pairs, i.e. the ratio
+    ``-(y_i - y_j)/(x_i - x_j)`` must not equal ``v/u`` whenever the denominator is
+    nonzero.  We scan a short deterministic list of ``(u, v)``.
+    """
+    n = len(Q)
+    if n < 2:
+        z = Fraction(1)
+        return (z, Fraction(0), Fraction(0), z)
+    for u in range(0, n + 2):
+        for v in range(0, n + 2):
+            if u == 0 and v == 0:
+                continue
+            ok = True
+            for i in range(n):
+                for j in range(i + 1, n):
+                    dy = Q[j][1] - Q[i][1]
+                    dx = Q[j][0] - Q[i][0]
+                    if v * dx + u * dy == 0:
+                        ok = False
+                        break
+                if not ok:
+                    break
+            if ok:
+                # det = u^2 + v^2 must be nonzero for invertibility.
+                det = u * u + v * v
+                if det:
+                    return (Fraction(u), Fraction(v), Fraction(v), Fraction(u))
+    raise AssertionError("no generic rotation found; configuration is degenerate")
+
+
+def _unrotate(p: Point2, rot: tuple[Fraction, Fraction, Fraction, Fraction]) -> Point2:
+    """Inverse of the rational rotation ``(x,y) -> (u x - v y, v x + u y)``."""
+    u, v = rot[0], rot[1]
+    det = u * u + v * v
+    x, y = p
+    xr = u * x + v * y
+    yr = -v * x + u * y
+    return (xr / det, yr / det)
+
+
 def arrangement_cell_representatives(Q: Configuration, max_cells: int | None = None) -> list[Point2]:
     """One rational point in every cell of the arrangement of pair-lines of ``Q``.
 
-    The arrangement of the ``C(n, 2)`` lines through pairs of points of ``Q``
-    is explored with a vertical sweep: the "critical" ``x``-coordinates (where two
-    lines meet) split the plane into vertical slabs, and inside each slab the
-    ``y``-gaps between consecutive lines each contain exactly one cell.  Choosing
-    rational sample points in those gaps enumerates every cell.  Returns a list of
-    points ``(x, y)`` as pairs of ``Fraction``.
+    The arrangement of the ``C(n, 2)`` lines through pairs of points of ``Q`` is
+    explored with a vertical sweep: the critical ``x``-coordinates (where two
+    non-parallel lines meet) split the plane into vertical slabs, and inside each
+    slab every ``y``-gap between consecutive lines contains exactly one cell.
+
+    To make the sweep total we first apply a *generic rational shear*
+    ``(x, y) -> (x + t y, y)``, which sends every pair-line to a non-vertical line
+    unless the pair has equal ``y``-coordinates, so we first rotate the
+    configuration by a rational rotation whose cosine and sine avoid the finitely
+    many bad values.  Both operations are unimodular on the arrangement's
+    combinatorics, so no cell is lost or gained; the returned points are mapped
+    back to the original coordinates.
+
+    Returns a list of points ``(x, y)`` as pairs of ``Fraction``.
     """
     lines = _lines_through_pairs(Q)
     m = len(lines)
-    # Critical x values: pairwise intersections of non-parallel lines.
+    n = len(Q)
+
+    # A rational rotation by an angle with cos = u/|.| , sin = v/|.| chosen so that
+    # no two points share a y-coordinate afterwards.  We try a short deterministic
+    # list of (u, v) pairs and take the first that works.
+    rot = _generic_rotation(Q)
+    Qr = [((rot[0] * x - rot[1] * y), (rot[2] * x + rot[3] * y)) for (x, y) in Q]
+    lines = _lines_through_pairs(Qr)
+
+    # Critical x values: where two non-parallel lines meet, i.e. where the vertical
+    # order of the lines changes.  Solving a1 x + b1 y + c1 = a2 x + b2 y + c2 = 0
+    # gives x = (b1 c2 - b2 c1) / (a1 b2 - a2 b1).
     crit: set[Fraction] = set()
     for t in range(m):
         _, _, a1, b1, c1 = lines[t]
@@ -166,8 +229,8 @@ def arrangement_cell_representatives(Q: Configuration, max_cells: int | None = N
             _, _, a2, b2, c2 = lines[u]
             det = a1 * b2 - a2 * b1
             if det == 0:
-                continue
-            crit.add((b2 * c1 - b1 * c2) / det)
+                continue  # parallel: never meet, no critical x
+            crit.add((b1 * c2 - b2 * c1) / det)
     crit_sorted = sorted(crit)
     xs: list[Fraction] = []
     if not crit_sorted:
@@ -181,21 +244,12 @@ def arrangement_cell_representatives(Q: Configuration, max_cells: int | None = N
     seen: set[tuple[int, ...]] = set()
     reps: list[Point2] = []
     for x in xs:
-        vals = [(a * x + c) / (-b) if b != 0 else None for (_, _, a, b, c) in lines]
-        # Lines with b == 0 are vertical: they are excluded from the y-gap scan,
-        # but their sign is constant inside a slab, so cells are still captured
-        # (the y-gap scan on the remaining lines, combined with the constant signs
-        # of the vertical lines, distinguishes cells).
-        idx = [t for t, v in enumerate(vals) if v is not None]
-        if not idx:
+        ys = sorted((-(a * x + c) / b, t) for (t, (_, _, a, b, c)) in enumerate(lines) if b != 0)
+        if not ys:
             continue
-        ys = sorted((vals[t], t) for t in idx)
-        gaps: list[tuple[Fraction, Fraction]] = []
-        for t in range(len(ys) - 1):
-            gaps.append((ys[t][0], ys[t + 1][0]))
         ycands = [ys[0][0] - 1]
-        for lo_y, hi_y in gaps:
-            ycands.append((lo_y + hi_y) / 2)
+        for t in range(len(ys) - 1):
+            ycands.append((ys[t][0] + ys[t + 1][0]) / 2)
         ycands.append(ys[-1][0] + 1)
         for y in ycands:
             sig = []
@@ -211,7 +265,8 @@ def arrangement_cell_representatives(Q: Configuration, max_cells: int | None = N
             if key in seen:
                 continue
             seen.add(key)
-            reps.append((x, y))
+            # Map the sample point back through the inverse rotation.
+            reps.append(_unrotate((x, y), rot))
             if max_cells is not None and len(reps) >= max_cells:
                 return reps
     return reps
