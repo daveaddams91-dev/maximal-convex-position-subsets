@@ -136,8 +136,23 @@ All randomised components use fixed seeds, so results are deterministic.
 
 `data/ordertypes/` contains the point-set order-type database of Aichholzer, Aurenhammer
 and Krasser (Graz University of Technology), obtained from their distribution page. **It is
-not covered by this repository's MIT licence**; see `LICENSE` and `docs/methodology.md` §3.1.
-We use it to obtain one realisation per order type; all geometry computed from it is exact.
+not covered by this repository's MIT licence and is not redistributed here**; see `LICENSE`
+and `docs/methodology.md` §3.1. We use it to obtain one realisation per order type; all
+geometry computed from it is exact.
+
+If `make` is unavailable, fetch it directly:
+
+```bash
+mkdir -p data/ordertypes
+BASE=http://www.ist.tugraz.at/staff/aichholzer/research/rp/triangulations/ordertypes/data
+for n in 03 04 05 06 07 08 09; do
+  curl -fsSL -o data/ordertypes/otypes$n.b08 $BASE/otypes$n.b08
+done
+python tests/test_aak_database.py 8     # validates the reader
+```
+
+The test suite passes with or without the database; the database-dependent tests skip
+gracefully when the files are absent.
 
 ## Examples
 
