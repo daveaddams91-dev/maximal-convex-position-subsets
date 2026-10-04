@@ -50,10 +50,20 @@ def orient(a: Point, b: Point, c: Point) -> int:
     clockwise turn and ``0`` if the three points are collinear.  The return
     value is always exactly one of ``-1, 0, +1``.
     """
-    d = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
-    if d > 0:
+    anx, adx = a[0].numerator, a[0].denominator
+    any_, ady = a[1].numerator, a[1].denominator
+    bnx, bdx = b[0].numerator, b[0].denominator
+    bny, bdy = b[1].numerator, b[1].denominator
+    cnx, cdx = c[0].numerator, c[0].denominator
+    cny, cdy = c[1].numerator, c[1].denominator
+
+    # Equivalent to cross-multiplying (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+    diff = (bnx * adx - anx * bdx) * (cny * ady - any_ * cdy) * bdy * cdx - \
+           (bny * ady - any_ * bdy) * (cnx * adx - anx * cdx) * bdx * cdy
+
+    if diff > 0:
         return 1
-    if d < 0:
+    if diff < 0:
         return -1
     return 0
 
