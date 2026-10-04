@@ -98,7 +98,33 @@ reflection for random configurations with `n = 4, 5, 6`.
 `experiments/reproduce_paper_numbers.py` recomputes every number quoted in the
 paper and writes `results/paper_numbers.json`.
 
-## 5. Falsified statements
+## 6. Complexity and observed costs
+
+| routine | time | space | worst case |
+|---|---|---|---|
+| `orient` | `O(1)` exact | `O(1)` | arithmetic on `Fraction`; bit length grows with denominator |
+| `convex_hull_vertices` | `O(k log k)` for `k` points | `O(k)` | monotone chain |
+| `in_convex_position` | `O(k log k)` | `O(k)` | one hull computation |
+| `maximal_convex_subsets` | `O(2^n n log n)` | `O(2^n)` | the `2^n` subset scan |
+| `maximal_convex_subsets_fast` | `O(n^3 + \text{nodes} \cdot n \cdot d)` where `d` is the max degree of the forbidden-quadruple hypergraph (`O(n^3)`) | `O(n^3)` bitmask storage | output-sensitive: `O(n \|M(P)\|)` nodes, exponential in the *output* |
+| `arrangement_cell_representatives` | `O(m^3)` arithmetic operations for `m = C(n,2)` lines | `O(m^2)` | exact `Fraction` intersection arithmetic |
+| `enumerate_order_types_up_to(n)` | dominated by the level `n` | `O(\#\text{order types of } n)` | complete for `n\le 7`; `3313/3315` at `n=8` |
+
+Observed wall-clock (single core, Python):
+
+* `f(n)` scan over all order types: `n=7` in $4$ s, `n=8` in $132$ s, `n=9` in $18\,483$ s
+  ($\approx 5.1$ h). Extrapolating linearly, `n=10$ ($\times 90$ more order types) would be
+  $\approx 19$ days — too slow for this project, and the reason Open Problem 8.2 stands.
+* our own order-type enumeration: $n=7$ in $13$ s, $n=8$ in $3345$ s.
+* `maximal_convex_subsets_fast` on the twin-pair construction with `n=16` exhausts a
+  $4\times10^8$-node budget and raises.  This is the intended behaviour: the routine reports
+  failure rather than returning a truncated count.  For `n \le 14` the same construction
+  completes.
+
+The `n=16` budget exhaustion is the honest limit of the current implementation.  It is a
+practical bound on the *search*, not a mathematical statement about $f$.
+
+## 7. Falsified statements
 
 We record these because they were part of the research process and are
 informative:

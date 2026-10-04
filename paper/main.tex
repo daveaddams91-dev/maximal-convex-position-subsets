@@ -11,6 +11,8 @@
 %% ---------------------------------------------------------------------------
 
 \usepackage[margin=2.6cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{booktabs}
 \usepackage{hyperref}
@@ -99,7 +101,7 @@ The question \emph{how many convex polygons does a point set determine} has a lo
 history~\cite{rote91,rote92,mitchell95,huemer2022}: those works count \emph{all}
 convex subsets, or count them for a \emph{given} configuration.  Two neighbouring
 extremal questions are different again.  The \emph{minimum} number of convex
-subsets of $n$ points is Erdős Problem~838~\cite{erdos838}, on the order
+subsets of $n$ points is Erd{\\H{o}}s Problem~838~\cite{erdos838}, on the order
 $n^{\Theta(\log n)}$; exact values for $n\le 11$ were recently computed
 by Savova~\cite{savova2026}.  The number of \emph{empty} convex polygons (holes)
 is controlled by~\cite{baranyvaltr04,pinchasi2006,bae2022,suk2017}.
@@ -158,9 +160,10 @@ Section~\ref{sec:prelim} fixes notation.  Section~\ref{sec:duality} proves the
 duality theorem.  Section~\ref{sec:local} gives the local structural results.
 Section~\ref{sec:related} discusses related work and novelty.  Section~\ref{sec:comp}
 describes the computational method in enough detail to reproduce it, including two
-bugs we found and fixed.  Section~\ref{sec:values} reports the exact values.
-Section~\ref{sec:twin} gives constructions and falsification experiments.
-Section~\ref{sec:open} states what is open.
+bugs we found and fixed, and gives complexity bounds.  Section~\ref{sec:values}
+reports the exact values.  Section~\ref{sec:twin} gives constructions and the
+falsification experiments, including two of our own conjectures that our data
+refuted.  Section~\ref{sec:open} states what is open.
 
 \section{Preliminaries}
 \label{sec:prelim}
@@ -360,7 +363,7 @@ $u$.  Huemer, Oliveros, P\'erez-Lantero, Torra and Vogtenhuber~\cite{huemer2022}
 prove linear identities among the counts $X_{k,\ell}(S)$ of convex $k$-gons with
 $\ell$ interior points.
 
-For the \emph{minimum} number of convex subsets, Erdős Problem~838~\cite{erdos838}
+For the \emph{minimum} number of convex subsets, Erd{\\H{o}}s Problem~838~\cite{erdos838}
 asks for the order of magnitude of $\min_{|P|=n}|\CP(P)|$ (with singletons and pairs
 counted), and Savova~\cite{savova2026} reports exact values for $n\le 11$ together
 with the bound $\limsup\log_2 f(N)/(\log_2 N)^2\le \tfrac12$.
@@ -370,7 +373,7 @@ with the bound $\limsup\log_2 f(N)/(\log_2 N)^2\le \tfrac12$.
 Three distinctions matter.
 
 \begin{enumerate}[leftmargin=*]
-\item \emph{Maximum versus minimum.} Erdős Problem~838 and~\cite{savova2026}
+\item \emph{Maximum versus minimum.} Erd{\\H{o}}s Problem~838 and~\cite{savova2026}
   concern $\min_P|\CP(P)|$.  We concern $\max_P|\M(P)|$, where $\M(P)$ counts only
   the inclusion-maximal convex subsets.
 \item \emph{Maximal versus all.} The papers~\cite{rote91,rote92,mitchell95} count
@@ -565,6 +568,42 @@ Two structural observations, both exact for $n\le 8$:
   $38$ of the $\binom{8}{4}=70$ four-element subsets are maximal.
 \end{itemize}
 
+\subsection{Complexity and observed costs}
+
+Table~\ref{tab:cost} summarises the routines.  All orientation predicates are exact
+rational arithmetic, so the bit-complexity depends on the denominator growth of the
+inputs; for the integer inputs of the order-type database this is negligible.
+
+\begin{table}[ht]
+\centering
+\caption{Cost of the main routines.}
+\label{tab:cost}
+\begin{tabular}{lll}
+\toprule
+routine & time & worst case \\
+\midrule
+$\orient$ & $O(1)$ & exact rational arithmetic \\
+$\conv$ (hull of $k$ points) & $O(k\log k)$ & monotone chain \\
+\texttt{maximal\_convex\_subsets} & $O(2^n n\log n)$ & the $2^n$ subset scan \\
+\texttt{maximal\_convex\_subsets\_fast} & $O(n^3 + \Sigma\cdot n\cdot d)$ &
+output-sensitive; $O(n|\M(P)|)$ nodes \\
+\texttt{enumerate\_order\_types\_up\_to} & dominated by the last level &
+complete for $n\le 7$; $3313/3315$ at $n=8$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Here $\Sigma$ is the number of nodes visited and $d$ the maximum degree of the
+forbidden-quadruple hypergraph, which is $O(n^3)$.  The important point is that the
+second routine is exponential in the \emph{output} $|\M(P)|$ rather than in $2^n$.
+
+On a single core, scanning all order types takes $4$ s for $n=7$, $132$ s for
+$n=8$, and $18\,483$ s ($\approx 5.1$ h) for $n=9$.  Extrapolating, $n=10$
+would need $\approx 19$ days, which is why Open Problem 8.2 stands.  The
+output-sensitive routine exhausts a $4\times 10^8$-node budget on a $16$-point
+twin-pair configuration and raises; for $n\le 14$ it completes.  This is the
+intended behaviour --- it reports failure rather than returning a truncated count.
+
 \section{Constructions and falsification}
 \label{sec:twin}
 
@@ -704,11 +743,11 @@ of empty convex polygons. \emph{Studia Sci.\ Math.\ Hungar.\ }41(2):243--266, 20
 \bibitem{bae2022} S.~W. Bae. Faster counting empty convex polygons in a planar point
 set. \emph{Inf.\ Process.\ Lett.\ }175:106221, 2022.
 
-\bibitem{erdos838} Erdős Problem 838 (T.~Bloom, ed.). Minimum number of convex subsets
+\bibitem{erdos838} Erd{\\H{o}}s Problem 838 (T.~Bloom, ed.). Minimum number of convex subsets
 determined by $n$ points. \url{https://www.erdosproblems.com/838}.
 
 \bibitem{hmp2020} A.~F. Holmsen, H.~Nassajian Mojarrad, J.~Pach, and G.~Tardos. Two
-extensions of the Erdős--Szekeres problem. \emph{J.\ Eur.\ Math.\ Soc.\ }22:3741--3763, 2020.
+extensions of the Erd{\\H{o}}s--Szekeres problem. \emph{J.\ Eur.\ Math.\ Soc.\ }22:3741--3763, 2020.
 
 \bibitem{bukhmnk11} A.~Bukh, J.~Matou\v{s}ek, and G.~Nivasch. Lower bounds for weak
 $\varepsilon$-nets and stair-convexity. \emph{Israel J.\ Math.\ }182(1):199--228, 2011.
@@ -736,7 +775,7 @@ and exact small values. Preprint, 2026.
 \url{https://github.com/NikolSavova/erdos-838-convex-subsets}.
 (Not peer reviewed; cited as adjacent, competing work.)
 
-\bibitem{suk2017} A.~Suk. On the Erdős--Szekeres convex polygon problem.
+\bibitem{suk2017} A.~Suk. On the Erd{\\H{o}}s--Szekeres convex polygon problem.
 \emph{J.\ Amer.\ Math.\ Soc.\ }30(4):1047--1053, 2017.
 
 \bibitem{aak2002} O.~Aichholzer, F.~Aurenhammer, and H.~Krasser. Enumerating order types

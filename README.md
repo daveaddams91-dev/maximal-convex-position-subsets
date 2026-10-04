@@ -111,8 +111,7 @@ maximal-convex-position-subsets/
 ├── results/                    computed data (JSON) and logs
 ├── figures/                    generated PNG figures
 └── paper/
-    ├── main.tex                the paper (LaTeX)
-    └── draft.md                same content in Markdown
+    └── main.tex                the paper (LaTeX, self-contained)
 ```
 
 ## Reproducing the results
