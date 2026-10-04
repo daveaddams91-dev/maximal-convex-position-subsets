@@ -1,0 +1,9 @@
+  parent 0/135, found 114  35s
+  parent 25/135, found 1352  848s
+  parent 50/135, found 2013  1596s
+  parent 75/135, found 2686  2196s
+  parent 100/135, found 3030  2876s
+  parent 125/135, found 3251  3722s
+regenerated 3313 order types of 8 points (4035s)
+AAK: 3315
+ours - AAK: 0   AAK - ours: 2
