@@ -18,3 +18,8 @@ data/ordertypes/
 
 # Cached order-type enumeration (regenerate with experiments/run_f_exhaustive.py)
 results/ordertype_cache/
+
+# Compiled Python bytecode
+__pycache__/
+*.pyc
+
