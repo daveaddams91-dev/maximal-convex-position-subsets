@@ -1,0 +1,20 @@
+﻿# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+
+# LaTeX intermediates (keep the compiled PDF)
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.xdv
+paper/*.bbl
+paper/*.blg
+paper/*.toc
+
+# Order-type database (third-party; fetch with make fetch-data)
+data/ordertypes/
+
+# Cached order-type enumeration (regenerate with experiments/run_f_exhaustive.py)
+results/ordertype_cache/

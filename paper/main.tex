@@ -15,16 +15,12 @@
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{booktabs}
-\usepackage{hyperref}
-\usepackage[hidelinks]{hyperref}
 \usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
 
 \hypersetup{
-  colorlinks=true,
-  linkcolor=black,
-  citecolor=blue,
-  urlcolor=blue,
   pdftitle={On the Extremal Number of Maximal Convex-Position Subsets of a Planar Point Set},
+  pdfauthor={},
 }
 
 \newtheorem{theorem}{Theorem}[section]
@@ -38,11 +34,11 @@
 \newtheorem{openproblem}[theorem]{Open problem}
 
 \newcommand{\conv}{\operatorname{conv}}
-\newcommand{\vert}{\operatorname{vert}}
+\newcommand{\vtx}[1]{\operatorname{vert}(#1)}
 \newcommand{\M}{\mathcal{M}}
 \newcommand{\CP}{\mathcal{C}}
 \newcommand{\HP}{\mathcal{H}}
-\newcommand{\int}{\mathrm{int}}
+\newcommand{\intf}{\mathrm{int}}
 \newcommand{\hull}{\mathrm{Hull}}
 
 \title{\bf On the Extremal Number of Maximal\\
@@ -92,9 +88,11 @@ equivalently if $S$ is the vertex set of a convex polygon.  A convex-position
 subset is \emph{maximal} if no $S'\subsetneq P$ properly containing $S$ is in
 convex position.  Put
 \[
-  \M(P)=\bigl\{S\subseteq P:\ S \text{ is a maximal convex-position subset of } P\bigr\},
-  \qquad
-  f(n)=\max\bigl\{|\M(P)|:\ P\subset\mathbb{R}^2,\ |P|=n,\ P \text{ in general position}\bigr\}.
+  \M(P)=\bigl\{S\subseteq P:\ S \text{ is a maximal convex-position subset of } P\bigr\}
+\]
+and
+\[
+  f(n)=\max\bigl\{|\M(P)|:\ P\subset\mathbb{R}^2,\ |P|=n,\ \text{\(P\) in general position}\bigr\}.
 \]
 
 The question \emph{how many convex polygons does a point set determine} has a long
@@ -368,7 +366,7 @@ asks for the order of magnitude of $\min_{|P|=n}|\CP(P)|$ (with singletons and p
 counted), and Savova~\cite{savova2026} reports exact values for $n\le 11$ together
 with the bound $\limsup\log_2 f(N)/(\log_2 N)^2\le \tfrac12$.
 
-### What is different here
+\paragraph{What is different here.}
 
 Three distinctions matter.
 
@@ -576,19 +574,25 @@ inputs; for the integer inputs of the order-type database this is negligible.
 
 \begin{table}[ht]
 \centering
-\caption{Cost of the main routines.}
+\caption{Cost of the main routines.  $\Sigma$ is the number of nodes visited and
+$d$ the maximum degree of the forbidden-quadruple hypergraph, which is
+$O(n^3)$.}
 \label{tab:cost}
-\begin{tabular}{lll}
+\small
+\begin{tabular}{@{}lll@{}}
 \toprule
 routine & time & worst case \\
 \midrule
-$\orient$ & $O(1)$ & exact rational arithmetic \\
-$\conv$ (hull of $k$ points) & $O(k\log k)$ & monotone chain \\
-\texttt{maximal\_convex\_subsets} & $O(2^n n\log n)$ & the $2^n$ subset scan \\
-\texttt{maximal\_convex\_subsets\_fast} & $O(n^3 + \Sigma\cdot n\cdot d)$ &
-output-sensitive; $O(n|\M(P)|)$ nodes \\
-\texttt{enumerate\_order\_types\_up\_to} & dominated by the last level &
-complete for $n\le 7$; $3313/3315$ at $n=8$ \\
+$\operatorname{orient}$ & $O(1)$ & exact rational arithmetic \\
+$\conv$, hull of $k$ points & $O(k\log k)$ & monotone chain \\
+\texttt{maximal\_convex\_\allowbreak subsets}
+  & $O(2^n n\log n)$ & the $2^n$ subset scan \\
+\texttt{maximal\_convex\_\allowbreak subsets\_fast}
+  & $O(n^3+\Sigma n d)$ & output-sensitive \\
+  & & $O(n|\M(P)|)$ nodes \\
+\texttt{enumerate\_order\_\allowbreak types\_up\_to}
+  & last level dominates & complete $n\le 7$; \\
+  & & $3313/3315$ at $n=8$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -687,21 +691,26 @@ assumed, and we say so rather than quietly dropping the experiment.
 invariant; $|\M(P)|\le\binom{n}{\lfloor n/2\rfloor}$ by Sperner; the values
 $f(3),\dots,f(9)$ are as in Theorem~\ref{thm:f}.
 
-\begin{conjecture}
+\begin{conjecture}[growth of $f$]
+\label{conj:growth}
 $f(n)=2^{\Theta(n)}$.
 \end{conjecture}
 
+\begingroup
+\sloppy
 \noindent
-Evidence, and its limits.  The exact values $1,4,7,11,20,38,62$ have successive
-ratios $4.0,1.75,1.57,1.82,1.90,1.63$ and the values $f(7)=20$, $f(8)=38$,
-$f(9)=62$ are well fit by $c\cdot(1.87)^n$; the data are consistent with
-exponential growth but too short to distinguish $c\,2^{n/2}$ from $c\,(1.87)^n$.
-Against this, our explicit constructions (Section~\ref{sec:twin}) are weaker than
-the exhaustive values already at $n=8$, so they give no useful asymptotic lower
-bound, and we have \emph{no} construction we can prove beats $2^{n/2}$.  On the
-upper side we have only Sperner.  We therefore regard Conjecture 8.1 as
-suggestive rather than well supported, and we are explicit that we prove neither
-direction.
+\emph{Evidence, and its limits.}  The exact values $1,4,7,11,20,38,62$ have
+successive ratios $4.0,1.75,1.57,1.82,1.90,1.63$, and $f(7)=20$, $f(8)=38$,
+$f(9)=62$ are well fitted by $c$ times $1.87^n$.  The data are consistent with
+exponential growth, but are far too short to distinguish $c$ times $2^{n/2}$
+from $c$ times $1.87^n$.  Against this, our explicit constructions
+(Section~\ref{sec:twin}) are weaker than the exhaustive values already at $n=8$,
+so they give no useful asymptotic lower bound, and we have \emph{no} construction
+we can prove beats $2^{n/2}$.  On the upper side we have only Sperner.  We
+therefore regard Conjecture~\ref{conj:growth} as suggestive rather than well
+supported, and we are explicit that we prove neither direction.
+\par
+\endgroup
 
 \begin{openproblem}
 Determine $f(10)$.  The database has $14\,309\,547$ order types of $10$ points
@@ -788,8 +797,9 @@ collection of applications and results. \emph{CCCG 2001}, 17--20.
 results on the rectilinear crossing number. \emph{Comput.\ Geom.\ }36(1):2--15, 2007.
 
 \bibitem{aaDB} Aichholzer order-type database.
-\url{http://www.ist.tugraz.at/staff/aichholzer/research/rp/triangulations/ordertypes/}
-(accessed October 2026).
+\url{http://www.ist.tugraz.at/staff/aichholzer/research/rp/triangulations/}
+\allowbreak
+\url{ordertypes/} (accessed October 2026).
 
 \end{thebibliography}
 
