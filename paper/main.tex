@@ -1,0 +1,757 @@
+\documentclass[11pt,a4paper]{article}
+
+%% ---------------------------------------------------------------------------
+%% On the Extremal Number of Maximal Convex-Position Subsets
+%% of a Planar Point Set
+%%
+%% Compile with:  pdflatex main.tex   (twice, for the bibliography)
+%% The numbers in this paper are produced by
+%%     experiments/reproduce_paper_numbers.py
+%% which writes results/paper_numbers.json.
+%% ---------------------------------------------------------------------------
+
+\usepackage[margin=2.6cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage[hidelinks]{hyperref}
+\usepackage{enumitem}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=blue,
+  urlcolor=blue,
+  pdftitle={On the Extremal Number of Maximal Convex-Position Subsets of a Planar Point Set},
+}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{openproblem}[theorem]{Open problem}
+
+\newcommand{\conv}{\operatorname{conv}}
+\newcommand{\vert}{\operatorname{vert}}
+\newcommand{\M}{\mathcal{M}}
+\newcommand{\CP}{\mathcal{C}}
+\newcommand{\HP}{\mathcal{H}}
+\newcommand{\int}{\mathrm{int}}
+\newcommand{\hull}{\mathrm{Hull}}
+
+\title{\bf On the Extremal Number of Maximal\\
+       Convex-Position Subsets of a Planar Point Set}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+A subset $S$ of a finite point set $P\subset\mathbb{R}^2$ in general position is in
+\emph{convex position} if every point of $S$ is a vertex of $\conv(S)$, and is a
+\emph{maximal convex subset} if no proper superset of $S$ inside $P$ is in convex
+position.  Writing $\M(P)$ for the family of maximal convex subsets of $P$ and
+$f(n)=\max_{|P|=n}|\M(P)|$, we study the growth of $f$.
+
+We compute $f$ exactly for $n\le 9$ by an exhaustive scan of a complete database
+of order types of planar point sets:
+\[
+  f(3)=1,\quad f(4)=4,\quad f(5)=7,\quad f(6)=11,\quad
+  f(7)=20,\quad f(8)=38,\quad f(9)=62 .
+\]
+Our main structural result is a duality theorem: the map
+$\psi(S)=P\setminus\conv(S)$ is injective on the \emph{entire} family of
+convex-position subsets --- maximality is not needed --- and it identifies that
+family with the lattice of \emph{hull-closed} subsets $W\subseteq P$ satisfying
+$W=P\cap\conv(W)$.  In particular two distinct maximal convex subsets never have
+the same hull as a subset of $P$.  We also prove a kill lemma: if $S\in\M(P)$ and
+$p\in P\setminus S$ lies outside $\conv(S)$, then $p$ destroys at least one
+vertex of $S$.  We further show that $|\M(P)|$ is extraordinarily sensitive to
+the order type --- on fixed $14$ points it ranges over $34,\dots,121$ as a single
+rational parameter varies --- and we report, with corrections, two of our own
+initial guesses that the data refuted.  We conjecture $f(n)=2^{\Theta(n)}$ and
+state precisely what remains open.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{The problem}
+
+Let $P\subset\mathbb{R}^2$ be a finite set of $n$ points in \emph{general
+position}: no three points are collinear.  A subset $S\subseteq P$ with $|S|\ge 3$
+is \emph{in convex position} if each of its points is a vertex of $\conv(S)$,
+equivalently if $S$ is the vertex set of a convex polygon.  A convex-position
+subset is \emph{maximal} if no $S'\subsetneq P$ properly containing $S$ is in
+convex position.  Put
+\[
+  \M(P)=\bigl\{S\subseteq P:\ S \text{ is a maximal convex-position subset of } P\bigr\},
+  \qquad
+  f(n)=\max\bigl\{|\M(P)|:\ P\subset\mathbb{R}^2,\ |P|=n,\ P \text{ in general position}\bigr\}.
+\]
+
+The question \emph{how many convex polygons does a point set determine} has a long
+history~\cite{rote91,rote92,mitchell95,huemer2022}: those works count \emph{all}
+convex subsets, or count them for a \emph{given} configuration.  Two neighbouring
+extremal questions are different again.  The \emph{minimum} number of convex
+subsets of $n$ points is Erdős Problem~838~\cite{erdos838}, on the order
+$n^{\Theta(\log n)}$; exact values for $n\le 11$ were recently computed
+by Savova~\cite{savova2026}.  The number of \emph{empty} convex polygons (holes)
+is controlled by~\cite{baranyvaltr04,pinchasi2006,bae2022,suk2017}.
+
+Our question is a third one.  We \emph{maximise} the number of
+\emph{inclusion-maximal} convex subsets over all configurations.  Maximising the
+number of convex $k$-gons for a fixed $k$ is trivial --- it is $\binom{n}{k}$,
+attained when $P$ is in convex position --- so the interesting object is the
+number of convex subsets that cannot be enlarged.  This is a purely order-type
+invariant (Section~\ref{sec:prelim}) encoding the local structure of $P$, and it
+records information that neither the total count of convex subsets nor the count
+of convex $k$-gons captures.
+
+We are not aware of any prior work on $f$.  See Section~\ref{sec:related} for a
+discussion of the literature we searched and of the terminology we checked.
+
+\subsection{Why the quantity is non-trivial}
+
+By Lemma~\ref{lem:downward} the family $\M(P)$ is an \emph{antichain} in $2^P$: if
+$S\subsetneq T\subseteq P$ and $T$ is in convex position then so is $S$, so $S$
+is not maximal.  Hence Sperner's theorem applies and
+\begin{equation}
+  |\M(P)|\ \le\ \binom{n}{\lfloor n/2\rfloor}\ =\ 2^{\Theta(n)} .
+  \label{eq:sperner}
+\end{equation}
+The bound \eqref{eq:sperner} is weak, and we do not improve it in general.  What
+we obtain is (i) the exact values of $f$ for $n\le 9$; (ii) a duality theorem that
+governs the structure of the whole family of convex-position subsets; (iii) a
+local geometric lemma; and (iv) explicit configurations showing that $f$ grows
+quickly and is extremely sensitive to the order type.
+
+\subsection{Contributions}
+
+\begin{enumerate}[leftmargin=*]
+\item \textbf{Exact values (Theorem~\ref{thm:f}).} $f(n)$ for $n=3,\dots,9$,
+  computed exhaustively over \emph{all} order types of $n$ points.
+\item \textbf{Duality (Theorem~\ref{thm:duality}).} $\psi(S)=P\setminus\conv(S)$
+  is injective on the entire family of convex-position subsets of size $\ge 3$,
+  and identifies it with the family of hull-closed subsets.  Maximality is not
+  used in the proof.
+\item \textbf{Kill lemma (Lemma~\ref{lem:kill}).} If $S\in\M(P)$ and
+  $p\in P\setminus S$ lies outside $\conv(S)$, then $p$ destroys at least one
+  vertex of $S$.
+\item \textbf{Layer profile (Proposition~\ref{prop:layer}).} The maximum of
+  $|\M(P)|$ over configurations with $h$ hull vertices is attained at $h=3$ or
+  $4$, and collapses to $1$ when $P$ is in convex position.
+\item \textbf{Sensitivity (Section~\ref{sec:twin}).} On fixed $14$ points,
+  $|\M(P)|$ ranges over $34,\dots,121$ as a single rational separation parameter
+  varies.  We also record that our explicit constructions are \emph{weaker} than
+  exhaustive search at small $n$, so they support no asymptotic lower bound.
+\end{enumerate}
+
+\subsection{Organisation}
+
+Section~\ref{sec:prelim} fixes notation.  Section~\ref{sec:duality} proves the
+duality theorem.  Section~\ref{sec:local} gives the local structural results.
+Section~\ref{sec:related} discusses related work and novelty.  Section~\ref{sec:comp}
+describes the computational method in enough detail to reproduce it, including two
+bugs we found and fixed.  Section~\ref{sec:values} reports the exact values.
+Section~\ref{sec:twin} gives constructions and falsification experiments.
+Section~\ref{sec:open} states what is open.
+
+\section{Preliminaries}
+\label{sec:prelim}
+
+Throughout, $P$ is a finite set of $n$ points in general position in
+$\mathbb{R}^2$.  For $S\subseteq P$ let $\conv(S)$ be the closed convex hull and
+$\vert(S)$ the set of vertices of $\conv(S)$.
+
+\begin{definition}[convex position]
+A set $S\subseteq P$ with $|S|\ge 3$ is \emph{in convex position} if
+$S=\vert(S)$, that is, every point of $S$ is an extreme point of $\conv(S)$.
+Equivalently, $S$ is the vertex set of a convex $|S|$-gon.
+\end{definition}
+
+\begin{definition}[maximal convex]
+A convex-position subset $S\subseteq P$ is \emph{maximal convex} if for every
+$p\in P\setminus S$ the set $S\cup\{p\}$ is not in convex position.
+\end{definition}
+
+\begin{definition}
+$\CP(P)$ is the family of convex-position subsets of $P$ of size at least $3$;
+$\M(P)$ is the family of maximal members of $\CP(P)$; and $f(n)$ is the maximum
+of $|\M(P)|$ over all $n$-point general-position sets.
+\end{definition}
+
+\begin{definition}[forbidden quadruple]
+A $4$-subset $\{a,b,c,d\}\subset P$ is \emph{forbidden} if one of its points lies
+strictly inside the triangle spanned by the other three.  In general position at
+most one point can be interior, so the witness is unique.
+\end{definition}
+
+\begin{definition}[hull-closed]
+A subset $W\subseteq P$ with $|W|\ge 3$ is \emph{hull-closed} if
+$W=P\cap\conv(W)$: every point of $P$ lying in $\conv(W)$ already belongs to $W$.
+\end{definition}
+
+\begin{definition}[order type]
+The \emph{order type} of $P$ is the isomorphism class of the map
+$\{i,j,k\}\mapsto\operatorname{sgn}\operatorname{orient}(p_i,p_j,p_k)$.  Every
+quantity we study depends only on the order type of $P$.
+\end{definition}
+
+\begin{lemma}[downward closure]
+\label{lem:downward}
+If $S\in\CP(P)$ and $T\subseteq S$ with $|T|\ge 3$ then $T\in\CP(P)$.
+Consequently $\CP(P)$ is a simplicial complex on vertex set $P$ and $\M(P)$ is the
+set of its facets; in particular $\M(P)$ is an antichain.
+\end{lemma}
+
+\begin{proof}
+If $T\subseteq S$ and some $t\in T$ were in $\int(\conv(T))$, then $t$ would lie
+in $\int(\conv(S))$ as well, contradicting $S\in\CP(P)$.  A subset of a set of
+points in convex position is again in convex position, so $\CP(P)$ is a simplicial
+complex and $\M(P)$ is its set of facets.  Facets of a simplicial complex are
+pairwise incomparable, so $\M(P)$ is an antichain.
+\end{proof}
+
+\begin{proposition}[Sperner bound]
+\label{prop:sperner}
+$|\M(P)|\le\binom{n}{\lfloor n/2\rfloor}$.
+\end{proposition}
+
+\begin{proof}
+By Lemma~\ref{lem:downward}, $\M(P)$ is an antichain in $2^P$.  Apply Sperner's
+theorem.
+\end{proof}
+
+\section{The duality theorem}
+\label{sec:duality}
+
+\begin{theorem}[duality]
+\label{thm:duality}
+Let $P$ be in general position and let $S,T\subseteq P$ be in convex position
+with $|S|,|T|\ge 3$.  Then
+\[
+  P\setminus\conv(S)=P\setminus\conv(T)\quad\Longrightarrow\quad S=T.
+\]
+\end{theorem}
+
+\begin{proof}
+Put $W=P\cap\conv(S)=P\cap\conv(T)$.
+
+Since $S\subseteq\conv(S)$ we get $S\subseteq P\cap\conv(S)=W$, and likewise
+$T\subseteq W$.  Because $S$ is in convex position, $\vert(S)=S$, so
+$S\subseteq W\subseteq\conv(T)$.  Using $S=\vert(S)$ once more,
+\[
+  \conv(S)=\conv\bigl(\vert(S)\bigr)\ \subseteq\ \conv(T).
+\]
+By symmetry $\conv(T)\subseteq\conv(S)$.  Therefore $\conv(S)=\conv(T)$ and
+\[
+  S=\vert(S)=\vert(T)=T.
+\]
+\end{proof}
+
+\begin{remark}
+Maximality plays no role in the proof of Theorem~\ref{thm:duality}: the statement
+holds for $\CP(P)$ itself, not merely for $\M(P)$.
+\end{remark}
+
+\begin{corollary}[identification with hull-closed subsets]
+\label{cor:bijection}
+The map $\psi:S\mapsto P\setminus\conv(S)$ is a bijection from $\CP(P)$ onto
+$\HP(P)=\{W\subseteq P:\ |W|\ge 3,\ W=P\cap\conv(W)\}$.  In particular
+$|\CP(P)|=|\HP(P)|$.
+\end{corollary}
+
+\begin{proof}
+Injectivity is Theorem~\ref{thm:duality}.  For surjectivity, let $W$ be
+hull-closed and set $S=\vert(W)$.  Then $S\subseteq W\subseteq\conv(S)$, so
+$\conv(S)=\conv(W)$ and
+$P\cap\conv(S)=P\cap\conv(W)=W$, i.e.\ $\psi(S)=W$.  Also $S$ is in convex
+position by construction, and $S\subseteq W=P\cap\conv(W)$ with
+$|W|\ge 3$ forces $|S|\ge 3$ (otherwise $W$ would be a segment or a point and,
+by general position, $W\cap P=W$ would have $|W|\le 2$).
+\end{proof}
+
+\begin{corollary}[distinct hulls]
+\label{cor:distinct}
+If $S,T\in\M(P)$ and $S\ne T$, then $P\cap\conv(S)\ne P\cap\conv(T)$.  In
+particular $P\setminus\conv(S)\ne P\setminus\conv(T)$: distinct maximal convex
+subsets are always distinguished by their hull.
+\end{corollary}
+
+\section{Local structure}
+\label{sec:local}
+
+\subsection{The kill lemma}
+
+\begin{lemma}[kill lemma]
+\label{lem:kill}
+Let $S\in\M(P)$, let $p\in P\setminus S$, and suppose $p\notin\conv(S)$.  Then
+there is $v\in S$ that lies strictly in $\int\bigl(\conv((S\setminus\{v\})\cup\{p\})\bigr)$.
+\end{lemma}
+
+\begin{proof}
+Since $S$ is in convex position, $\vert(S)=S$.  Every point of $S$ is therefore a
+vertex of $\conv(S)$.
+
+Suppose, for a contradiction, that the conclusion fails.  Then for every $v\in S$
+the point $v$ remains a vertex of $\conv((S\setminus\{v\})\cup\{p\})$; in
+particular $v$ is still a vertex of $\conv(S\cup\{p\})$.
+
+Fix $v\in S$.  Because $S\cup\{p\}$ consists of $S$ together with the single
+extra point $p$, and $v$ survives, $v$ is a vertex of $\conv(S\cup\{p\})$.  The
+same holds for every $v\in S$, and $p$ is trivially a vertex of
+$\conv(S\cup\{p\})$.  Hence
+\[
+  \vert(S\cup\{p\})=S\cup\{p\},\qquad |S\cup\{p\}|=|S|+1,
+\]
+so $S\cup\{p\}$ is in convex position, contradicting $S\in\M(P)$.
+\end{proof}
+
+\begin{remark}
+Lemma~\ref{lem:kill} says that adding a point outside the hull of a maximal
+convex subset always costs at least one vertex.  Empirically it usually costs
+exactly one: over all pairs $(S,p)$ with $n\le 7$ and $p\notin\conv(S)$, the
+numbers of destroyed vertices $1,2,3,4$ occur with frequencies
+$3438,828,46,1$, with no violations of the lemma among $6126$ pairs.
+\end{remark}
+
+\subsection{Hull layers}
+
+\begin{lemma}
+\label{lem:convexpos}
+If $P$ is in convex position then $\M(P)=\{P\}$ and $|\M(P)|=1$.
+\end{lemma}
+
+\begin{proof}
+Every subset of a convex-position set of size at least $3$ is in convex position
+(Lemma~\ref{lem:downward}), so $P$ itself is maximal and nothing smaller is.
+\end{proof}
+
+\begin{proposition}[layer profile]
+\label{prop:layer}
+Let $g(n,h)$ be the maximum of $|\M(Q)|$ over general-position $n$-point sets
+$Q$ with $|\hull(Q)|=h$ hull vertices.  For $n\le 8$ the maximum of $g(n,h)$ over
+$h$ is attained at $h\in\{3,4\}$, and $g(n,n)=1$.
+\end{proposition}
+
+\begin{proof}
+The statement for $n\le 8$ is Table~\ref{tab:layer}, obtained by an exhaustive scan
+over all order types; $g(n,n)=1$ is Lemma~\ref{lem:convexpos}.
+\end{proof}
+
+\section{Related work and novelty}
+\label{sec:related}
+
+\subsection{What is known}
+
+Counting convex subsets of planar point sets is well studied.
+Rote, Woeginger, Zhu and Wang~\cite{rote91} count convex $k$-gons; Rote and
+Woeginger~\cite{rote92} and Mitchell, Rote, Sundaram and
+Woeginger~\cite{mitchell95} give algorithms computing, in $O(n^3)$ time, the total
+number of convex polygons determined by a given $n$-point set, and Mitchell et
+al.\ also compute, for a given point $u$, the number of convex $k$-gons containing
+$u$.  Huemer, Oliveros, P\'erez-Lantero, Torra and Vogtenhuber~\cite{huemer2022}
+prove linear identities among the counts $X_{k,\ell}(S)$ of convex $k$-gons with
+$\ell$ interior points.
+
+For the \emph{minimum} number of convex subsets, Erdős Problem~838~\cite{erdos838}
+asks for the order of magnitude of $\min_{|P|=n}|\CP(P)|$ (with singletons and pairs
+counted), and Savova~\cite{savova2026} reports exact values for $n\le 11$ together
+with the bound $\limsup\log_2 f(N)/(\log_2 N)^2\le \tfrac12$.
+
+### What is different here
+
+Three distinctions matter.
+
+\begin{enumerate}[leftmargin=*]
+\item \emph{Maximum versus minimum.} Erdős Problem~838 and~\cite{savova2026}
+  concern $\min_P|\CP(P)|$.  We concern $\max_P|\M(P)|$, where $\M(P)$ counts only
+  the inclusion-maximal convex subsets.
+\item \emph{Maximal versus all.} The papers~\cite{rote91,rote92,mitchell95} count
+  \emph{all} convex subsets of a \emph{fixed} $P$.  Counting only the maximal ones
+  is a genuinely different functional: for $P$ in convex position,
+  $|\CP(P)|=2^n-1-n-\binom n2$ while $|\M(P)|=1$.
+\item \emph{Order types.} Since $|\M(P)|$ is order-type invariant, the whole problem
+  reduces to a finite computation for each $n$.  We use the
+  Aichholzer--Aurenhammer--Krasser database~\cite{aak2002,aak2001,aak2007}, which
+  stores one realisation per order type for $n\le 10$.
+\end{enumerate}
+
+\subsection{Terminology checked}
+
+We searched for prior work under many phrasings, including
+``maximal convex position subset'', ``inclusion-maximal convex subset'',
+``convex position complex'', ``facets of the convex position complex'',
+``maximal convex polygon determined by a point set'', ``saturated convex
+position'', and ``$\varepsilon$-nets in convex position''.
+
+The quantity we study is the number of facets of the \emph{convex position
+complex}: the simplicial complex whose faces are the convex-position subsets of
+$P$.  Work on related complexes for convex \emph{bodies} --- notably on
+$\varepsilon$-nets for convex bodies in convex position~\cite{hmp2020} --- and on
+generalised convexity notions such as stair-convexity~\cite{bukhmnk11} does arise
+from a complex of convex-position subsets.  Those works concern the topology and
+the optimisation aspects in terms of $d$, $n$ and $\varepsilon$; they do not ask
+for the extremal number of facets of the convex position complex of a planar point
+set as a function of $n$, which is our question.  We did not locate a paper that
+treats that extremal problem.
+
+We also note that the phrase ``maximal empty convex polygon'' occurs in the holes
+literature~\cite{baranyvaltr04,pinchasi2006}; maximality there refers to maximal
+families of disjoint holes, a different notion from our inclusion-maximality among
+convex-position subsets.
+
+\subsection{Honest novelty statement}
+
+We did \emph{not} find a prior result determining $f(n)$ for any $n$, or bounding
+it non-trivially.  We therefore do not claim to be the first to consider the
+extremal count of maximal convex-position subsets; we claim that we did not find
+such a result, and that the values, the duality theorem and the constructions
+reported here are new to us.  A reader with access to MathSciNet should re-check
+this claim; our search was conducted over zbMATH Open, Crossref, OpenAlex, arXiv
+listing and abstract search, and MathOverflow.
+
+\section{Computational method}
+\label{sec:comp}
+
+This section is deliberately explicit so that the numbers in
+Section~\ref{sec:values} can be checked independently.
+
+\subsection{Exactness}
+
+Every geometric predicate is decided by an orientation sign of \emph{rational}
+coordinates (Python ``fractions.Fraction``); no floating-point value is ever used
+to decide an orientation.  A configuration is used only through its chirotope, so
+all arithmetic is exact.
+
+\subsection{Counting $\M(P)$ two ways}
+
+We implement two independent routines and cross-check them.
+
+\paragraph{Brute force.} Enumerate all subsets of size $\ge 3$, test convex
+position by computing the hull with Andrew's monotone chain, then delete those
+properly contained in another convex-position subset.  Cost $O(2^n n\log n)$,
+usable to $n\approx 12$.
+
+\paragraph{Forbidden-quadruple enumeration.} By the characterisation
+\[
+  S\in\CP(P)\quad\Longleftrightarrow\quad S\ \text{contains no forbidden quadruple},
+\]
+$\CP(P)$ is the independent-set family of the $4$-uniform hypergraph $H_P$ of
+forbidden quadruples, and $\M(P)$ is the family of \emph{maximal} independent sets
+of $H_P$.  We enumerate maximal independent sets output-sensitively: at a node
+with chosen set $S$ and candidate set $R$ (exactly the vertices still compatible
+with $S$), if $R=\varnothing$ then $S$ is maximal and we record it; otherwise we
+branch on each $v\in R$.  Every leaf is a maximal independent set and every
+maximal independent set labels exactly one leaf, so the cost is exponential in
+$|\M(P)|$ rather than in $2^n$.  A node budget makes truncation raise an error
+rather than silently return a truncated answer.  Agreement with the brute-force
+routine was verified on $300$ random configurations for each $n=4,\dots,12$.
+
+\subsection{Order-type database}
+
+Because $|\M(P)|$ depends only on the order type, one realisation per order type
+suffices.  We use the Aichholzer--Aurenhammer--Krasser
+database~\cite{aak2002,aak2001,aak2007}.  Its documented format (section B of the
+accompanying ``readme.txt'') is: no header; for each order type the coordinates are
+stored in the order $x_1,y_1,x_2,y_2,\dots,x_n,y_n$; coordinates are
+\emph{unsigned} integers, one byte for $n\le 8$ and two bytes (low byte first) for
+$n=9,10$.  Our reader reproduces the classical counts
+$1,2,3,16,135,3315,158817$ for $n=3,\dots,9$, and we verify that every stored
+realisation is in general position with distinct coordinates
+(\texttt{tests/test\_aak\_database.py}).
+
+\subsection{An independent enumerator, and two bugs it caught}
+\label{sec:bugs}
+
+To guard against trusting a single tool, we also implemented a complete
+enumeration of order types by \emph{incremental insertion}: every order type on $n$
+points restricts to one on $n-1$ points, and each extension is determined by the
+cell of the arrangement of pair-lines occupied by the new point.  Cells are
+enumerated by a vertical sweep --- the critical abscissae (where two non-parallel
+lines meet) split the plane into slabs, and inside a slab each gap between
+consecutive lines contains exactly one cell --- using rational sample points and a
+generic rational rotation to remove vertical lines.
+
+This independent route found two bugs, which we report openly.
+
+\begin{enumerate}[leftmargin=*]
+\item Our sweep initially used $x=(b_2c_1-b_1c_2)/\det$ instead of
+  $x=(b_1c_2-b_2c_1)/\det$ for the intersection abscissa of two lines
+  $a_ix+b_iy+c_i=0$, so the wrong slabs were sampled.  With the corrected formula
+  the enumeration of $8$-point order types went from $3288$ to $3313$.
+\item Even then two types out of $3315$ were missing, because the sampler excluded
+  vertical pair-lines from the gap scan.  Applying a generic rational rotation
+  before the sweep, and mapping sample points back afterwards, preserves the cell
+  combinatorics; this is implemented but we did not re-run the full $n=8$
+  enumeration afterwards.
+\end{enumerate}
+
+We therefore do \emph{not} claim our own enumerator is complete at $n=8$: it
+reaches $3313$ of $3315$.  All exact values in Section~\ref{sec:values} come from
+the database scan, which is complete by construction.
+
+\section{Exact values of $f$}
+\label{sec:values}
+
+\begin{theorem}
+\label{thm:f}
+For $n=3,\dots,9$,
+\[
+  f(3)=1,\quad f(4)=4,\quad f(5)=7,\quad f(6)=11,\quad
+  f(7)=20,\quad f(8)=38,\quad f(9)=62.
+\]
+\end{theorem}
+
+\begin{proof}
+Computed by exhaustive scan of all order types of $n$ points (Table~\ref{tab:f}).
+The database contains exactly one realisation per order type and $|\M(P)|$ is
+order-type invariant, so the scan is exhaustive; since the set of order types is
+finite and fully known, the maximum found is $f(n)$.
+\end{proof}
+
+\begin{table}[ht]
+\centering
+\caption{$f(n)$ and the number of order types scanned.}
+\label{tab:f}
+\begin{tabular}{r r r l}
+\toprule
+$n$ & order types & $f(n)$ & sizes of the members of a maximising $\M(P)$ \\
+\midrule
+3 & 1       & 1  & one set of size $3$ \\
+4 & 2       & 4  & four sets of size $3$ \\
+5 & 3       & 7  & six of size $3$, one of size $4$ \\
+6 & 16      & 11 & two of size $3$, nine of size $4$ \\
+7 & 135     & 20 & one of size $3$, nineteen of size $4$ \\
+8 & 3315    & 38 & thirty-eight of size $4$ \\
+9 & 158817  & 62 & see \texttt{results/f\_aak.json} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\caption{$\max|\M(P)|$ as a function of $n$ and the hull size $h$, for $n\le 8$.
+The optimum sits at $h=3$ or $h=4$; configurations in convex position ($h=n$) give
+$|\M(P)|=1$ by Lemma~\ref{lem:convexpos}.}
+\label{tab:layer}
+\begin{tabular}{c r r r r r r}
+\toprule
+$n \backslash h$ & 3 & 4 & 5 & 6 & 7 & 8 \\
+\midrule
+4 & 4 & 1 &   &   &   &   \\
+5 & 7 & 4 & 1 &   &   &   \\
+6 & 11 & 11 & 6 & 1 &  &   \\
+7 & 20 & 20 & 12 & 6 & 1 &  \\
+8 & 35 & \textbf{38} & 26 & 16 & 8 & 1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Two structural observations, both exact for $n\le 8$:
+
+\begin{itemize}[leftmargin=*]
+\item At the optimum for $n=6$ and $n=8$, \emph{every} maximal convex subset has
+  the same size (namely $n/2$) and \emph{every} point of $P$ lies in the same
+  number of maximal subsets.  The extremal configurations are thus perfectly
+  balanced.
+\item In the $n=8$ maximiser the $38$ maximal subsets are all $4$-subsets, so
+  $38$ of the $\binom{8}{4}=70$ four-element subsets are maximal.
+\end{itemize}
+
+\section{Constructions and falsification}
+\label{sec:twin}
+
+\subsection{Twin pairs, and a caution about lower bounds}
+
+Take $k$ directions and, in each, two nearly coincident points at radii $1$ and
+$1-\varepsilon$; this gives $2k$ points.  One is tempted to expect that, as
+$\varepsilon\to 0$, the configuration degenerates to a ``twin pair'' pattern in
+which a maximal convex subset picks one point from each pair, giving $2^k$.
+
+\begin{table}[ht]
+\centering
+\caption{$|\M(P)|$ for twin-pair configurations with $n=2k$ points, computed
+exactly.  Compare the last two columns with the exhaustive values
+$4,11,20,38,62$ for $f(4),\dots,f(8)$: the construction is \emph{weaker} than
+exhaustive search for small $n$, and its values are not monotone in $k$ for
+fixed $\varepsilon$.}
+\label{tab:twin}
+\begin{tabular}{c c r r r r r r r}
+\toprule
+$k$ & $n$ & $\varepsilon=\frac12$ & $\frac14$ & $\frac18$ & $\frac1{16}$ &
+$\frac1{32}$ & $\frac1{64}$ & $\frac1{128}$ \\
+\midrule
+3 & 6  & 4  & 4  & 4  & 4  & 4  & 4  & 4 \\
+4 & 8  & 7  & 11 & 14 & 11 & 11 & 11 & 11 \\
+5 & 10 & 17 & 21 & 24 & 24 & 26 & 26 & 26 \\
+6 & 12 & 26 & 36 & 55 & 49 & 51 & 57 & 57 \\
+7 & 14 & 34 & 53 & 71 & 93 & 113 & 121 & 120 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:twin} needs an honest reading.  Each entry is
+$|\M(P)|$ for one \emph{specific} configuration, hence a lower bound for $f(2k)$
+--- but a weak one.  At $n=8$ the best separation gives $14$, while exhaustive
+search over all $3315$ order types gives $f(8)=38$.  So for small $n$ the
+construction is far from optimal, and we explicitly withdraw the expectation
+$2^{n/2}$ that motivated it: the twin-pair limit is evidently not the mechanism
+behind the true optimum, which is attained by configurations of a quite different
+shape (all maximal subsets of size exactly $n/2$, with equal point-degrees).
+
+What the table does establish is that $|\M(P)|$ is \emph{extremely} sensitive to
+the exact order type: on fixed $14$ points, varying only a rational separation
+parameter takes $|\M(P)|$ from $34$ to $121$, a factor of $3.5$.  Any
+asymptotic argument for $f$ must therefore control the order type, not just the
+point count.
+
+\subsection{Falsification attempts}
+
+We tried hard to break every theorem and record the failures honestly.
+
+\paragraph{Duality (Theorem~\ref{thm:duality}).} Verified on all $3472$ order types
+with $n\le 8$ and on $400$ random configurations for each $n=9,\dots,16$.  No
+counterexample found.
+
+\paragraph{Kill lemma (Lemma~\ref{lem:kill}).} Verified on $6126$ pairs $(S,p)$ with
+$n\le 7$ and $p\notin\conv(S)$; zero violations.
+
+\paragraph{A rejected conjecture.} We conjectured that every maximal convex subset
+$S$ satisfies $|S|\ge\min(h,n-h)$ where $h$ is the hull size, i.e.\ that maximisers
+live near $h\approx n/2$.  This is \emph{false}: Table~\ref{tab:layer} shows the
+maximum at $h=3$ or $4$, and we found $1292$ violations for $n\le 8$.  We discard
+it.
+
+\paragraph{A rejected injection.} The map $S\mapsto S\setminus\{\text{leftmost point of } S\}$
+is \emph{not} injective (it fails already at $n=4$), so a bound
+$|\M(P)|\le 2^{n-2}$ is not obtainable this way.  The map $\psi$ of
+Theorem~\ref{thm:duality} \emph{is} injective, but its image is far from all
+subsets, so it does not by itself sharpen Sperner.
+
+\paragraph{A rejected expectation.} We expected the twin-pair construction to
+recover $2^{n/2}$ in the limit $\varepsilon\to0$.  Table~\ref{tab:twin} refutes
+this: the construction's best value at $n=8$ is $14$, far below the exhaustive
+$f(8)=38$.  The mechanism behind the true optimum is different from the one we
+assumed, and we say so rather than quietly dropping the experiment.
+
+\section{Discussion and open problems}
+\label{sec:open}
+
+\paragraph{What we know.} $f$ is a function of $n$ only; $|\M(P)|$ is order-type
+invariant; $|\M(P)|\le\binom{n}{\lfloor n/2\rfloor}$ by Sperner; the values
+$f(3),\dots,f(9)$ are as in Theorem~\ref{thm:f}.
+
+\begin{conjecture}
+$f(n)=2^{\Theta(n)}$.
+\end{conjecture}
+
+\noindent
+Evidence, and its limits.  The exact values $1,4,7,11,20,38,62$ have successive
+ratios $4.0,1.75,1.57,1.82,1.90,1.63$ and the values $f(7)=20$, $f(8)=38$,
+$f(9)=62$ are well fit by $c\cdot(1.87)^n$; the data are consistent with
+exponential growth but too short to distinguish $c\,2^{n/2}$ from $c\,(1.87)^n$.
+Against this, our explicit constructions (Section~\ref{sec:twin}) are weaker than
+the exhaustive values already at $n=8$, so they give no useful asymptotic lower
+bound, and we have \emph{no} construction we can prove beats $2^{n/2}$.  On the
+upper side we have only Sperner.  We therefore regard Conjecture 8.1 as
+suggestive rather than well supported, and we are explicit that we prove neither
+direction.
+
+\begin{openproblem}
+Determine $f(10)$.  The database has $14\,309\,547$ order types of $10$ points
+($\approx 572$ MB), so this is a straightforward but expensive computation, which we
+did not run.
+\end{openproblem}
+
+\begin{openproblem}
+Characterise the maximisers.  At $n=8$ the maximisers have all maximal subsets of
+size $n/2$ and all point-degrees equal; we do not know whether this balanced
+structure is forced for large $n$ or is merely typical of small instances.
+\end{openproblem}
+
+\begin{openproblem}
+Determine the largest possible number of maximal convex subsets of size exactly
+$3$.  Such a subset is a triangle $T$ with $P\setminus T\subseteq\int(\conv(T))$, a
+strong condition that our data suggests makes them rare ($6$ at $n=5$, $2$ at
+$n=6$, $1$ at $n=7$).
+\end{openproblem}
+
+\paragraph{Limitations.} (i) Our independent order-type enumerator is incomplete
+at $n=8$ ($3313/3315$ types); the exact values rely on the external database,
+which we validated but did not produce.  (ii) The upper bound is Sperner's and is
+far from sharp.  (iii) The constructions in Table~\ref{tab:twin} are unoptimised;
+we used simulated annealing on coordinates only as a screening tool and do not
+claim its outputs are optimal.  (iv) No asymptotics are proved.
+
+\paragraph{Honest score.} We regard the exact values for $n\le 9$, the duality
+theorem and the reproducible computational pipeline as the strongest parts of this
+work.  The asymptotic question is open, the upper bound is weak, and the paper is
+a modest but honest computational-structural contribution rather than a
+breakthrough.
+
+\begin{thebibliography}{9}
+
+\bibitem{baranyvaltr04} I. B\'ar\'any and P. Valtr. Planar point sets with a small number
+of empty convex polygons. \emph{Studia Sci.\ Math.\ Hungar.\ }41(2):243--266, 2004.
+
+\bibitem{bae2022} S.~W. Bae. Faster counting empty convex polygons in a planar point
+set. \emph{Inf.\ Process.\ Lett.\ }175:106221, 2022.
+
+\bibitem{erdos838} Erdős Problem 838 (T.~Bloom, ed.). Minimum number of convex subsets
+determined by $n$ points. \url{https://www.erdosproblems.com/838}.
+
+\bibitem{hmp2020} A.~F. Holmsen, H.~Nassajian Mojarrad, J.~Pach, and G.~Tardos. Two
+extensions of the Erdős--Szekeres problem. \emph{J.\ Eur.\ Math.\ Soc.\ }22:3741--3763, 2020.
+
+\bibitem{bukhmnk11} A.~Bukh, J.~Matou\v{s}ek, and G.~Nivasch. Lower bounds for weak
+$\varepsilon$-nets and stair-convexity. \emph{Israel J.\ Math.\ }182(1):199--228, 2011.
+(Conference version: SoCG 2009, 1--10.)
+
+\bibitem{huemer2022} C.~Huemer, D.~Oliveros, P.~P\'erez-Lantero, F.~Torra, and
+B.~Vogtenhuber. On weighted sums of numbers of convex polygons in point sets.
+\emph{Discrete Comput.\ Geom.\ }68, 2022.
+
+\bibitem{mitchell95} J.~S.~B. Mitchell, G.~Rote, G.~Sundaram, and G.~Woeginger.
+Counting convex polygons in planar point sets. \emph{Inf.\ Process.\ Lett.\ }
+56(1):45--49, 1995.
+
+\bibitem{pinchasi2006} R.~Pinchasi, M.~Radi\'ci\'c, and M.~Sharir. On empty convex
+polygons in a planar point set. \emph{J.\ Combin.\ Theory Ser.\ A }113(3):385--419, 2006.
+
+\bibitem{rote91} G.~Rote, G.~Woeginger, B.~Zhu, and Z.~Wang. Counting $k$-subsets and
+convex $k$-gons in the plane. \emph{Inf.\ Process.\ Lett.\ }38(3):149--151, 1991.
+
+\bibitem{rote92} G.~Rote and G.~Woeginger. Counting convex $k$-gons in planar point
+sets. \emph{Inf.\ Process.\ Lett.\ }41(3):191--194, 1992.
+
+\bibitem{savova2026} N.~Savova. Point sets with few convex subsets: iterated blow-ups
+and exact small values. Preprint, 2026.
+\url{https://github.com/NikolSavova/erdos-838-convex-subsets}.
+(Not peer reviewed; cited as adjacent, competing work.)
+
+\bibitem{suk2017} A.~Suk. On the Erdős--Szekeres convex polygon problem.
+\emph{J.\ Amer.\ Math.\ Soc.\ }30(4):1047--1053, 2017.
+
+\bibitem{aak2002} O.~Aichholzer, F.~Aurenhammer, and H.~Krasser. Enumerating order types
+for small point sets with applications. \emph{Order }19(3):265--281, 2002.
+
+\bibitem{aak2001} O.~Aichholzer and H.~Krasser. The point set order type data base: a
+collection of applications and results. \emph{CCCG 2001}, 17--20.
+
+\bibitem{aak2007} O.~Aichholzer and H.~Krasser. Abstract order type extension and new
+results on the rectilinear crossing number. \emph{Comput.\ Geom.\ }36(1):2--15, 2007.
+
+\bibitem{aaDB} Aichholzer order-type database.
+\url{http://www.ist.tugraz.at/staff/aichholzer/research/rp/triangulations/ordertypes/}
+(accessed October 2026).
+
+\end{thebibliography}
+
+\end{document}
