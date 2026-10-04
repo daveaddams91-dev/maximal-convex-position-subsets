@@ -28,6 +28,10 @@ fetch-data:
 
 test:
 	$(PY) -m pytest tests -v
+	$(PY) experiments/check_github_math.py
+	$(PY) experiments/check_latex.py
+
+docs-check: test
 
 numbers:
 	$(PY) experiments/run_f_aak.py $(N) f_aak.json

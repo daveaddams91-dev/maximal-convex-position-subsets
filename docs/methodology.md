@@ -113,7 +113,7 @@ paper and writes `results/paper_numbers.json`.
 Observed wall-clock (single core, Python):
 
 * `f(n)` scan over all order types: `n=7` in $4$ s, `n=8` in $132$ s, `n=9` in $18\,483$ s
-  ($\approx 5.1$ h). Extrapolating linearly, `n=10$ ($\times 90$ more order types) would be
+  ($\approx 5.1$ h). Extrapolating linearly, `n=10` ($\times 90$ more order types) would be
   $\approx 19$ days — too slow for this project, and the reason Open Problem 8.2 stands.
 * our own order-type enumeration: $n=7$ in $13$ s, $n=8$ in $3345$ s.
 * `maximal_convex_subsets_fast` on the twin-pair construction with `n=16` exhausts a
@@ -124,7 +124,44 @@ Observed wall-clock (single core, Python):
 The `n=16` budget exhaustion is the honest limit of the current implementation.  It is a
 practical bound on the *search*, not a mathematical statement about $f$.
 
-## 7. Falsified statements
+## 7. Incident: a bug that only appears on github.com
+
+The README shipped with 13 uses of `\operatorname{conv}`, which renders as an error on
+GitHub:
+
+> The following macros are not allowed: operatorname
+
+The subtle part is that **stock KaTeX accepts `\operatorname`** — we verified this
+directly — so no local LaTeX or KaTeX check would ever have caught it. The rejection comes
+from GitHub's *hardened* KaTeX configuration, which blacklists a set of macros
+(`\operatorname`, `\href`, `\url`, ...). The bug was only visible once the README was
+rendered on github.com.
+
+Fixes applied:
+
+* every `\operatorname{conv}` / `\operatorname{vert}` became `\mathrm{conv}` / `\mathrm{vert}`
+  (mathematically identical, upright as operator names should be);
+* the custom macros `\M`, `\conv`, `\CP`, `\HP`, `\hull` — which are defined only in
+  `paper/main.tex` and mean nothing to KaTeX — were expanded to `\mathcal{M}`,
+  `\mathrm{conv}`, `\mathcal{C}`, `\mathcal{H}`, `\mathrm{Hull}`;
+* three passages where inline `$...$` math wrapped across a line (so the `$` delimiters
+  straddled line breaks) were reflowed.
+
+Two checks now guard against a recurrence:
+
+* `tests/test_markdown_math.py` — dependency-free; greps every math span in the Markdown
+  files for GitHub-forbidden macros, for macros that only exist in the `.tex` file, and for
+  inline math spanning a line break (skipping fenced code blocks, where `$n` is a shell
+  variable). Part of `pytest`.
+* `experiments/check_github_math.py` — thorough; renders all 196 math spans with the real
+  KaTeX engine under `node`, enforcing GitHub's macro blacklist. Exits 0 with a message if
+  node/katex are unavailable, so it never blocks a build. Wired into `make test`.
+
+The lesson we want to record: *a rendering target is part of the specification.* Compiling
+the paper with `tectonic` and testing the Python thoroughly was not enough; only actually
+rendering the Markdown on the target platform exposed the bug.
+
+## 8. Falsified statements
 
 We record these because they were part of the research process and are
 informative:

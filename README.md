@@ -3,15 +3,14 @@
 **How many inclusion-maximal subsets of an $n$-point set can lie in convex position?**
 
 For a finite set $P\subset\mathbb{R}^2$ in general position, a subset $S\subseteq P$ is in
-**convex position** if every point of $S$ is a vertex of $\operatorname{conv}(S)$, and is
+**convex position** if every point of $S$ is a vertex of $\mathrm{conv}(S)$, and is
 **maximal convex** if no proper superset of $S$ inside $P$ is in convex position. Writing
 $M(P)$ for the family of maximal convex subsets and
 
 $$f(n)=\max\{|M(P)|:\ P\subset\mathbb{R}^2,\ |P|=n,\ P \text{ in general position}\},$$
 
 this repository computes $f$ exactly for small $n$, proves a duality theorem governing the
-structure of $M(P)$, and gives explicit configurations with exponentially many maximal convex
-subsets.
+structure of $M(P)$, and measures how sharply $|\mathcal{M}(P)|$ depends on the order type.
 
 ---
 
@@ -19,10 +18,10 @@ subsets.
 
 - **Exact values** (exhaustive over *all* order types of $n$ points):
   $f(3)=1,\ f(4)=4,\ f(5)=7,\ f(6)=11,\ f(7)=20,\ f(8)=38,\ f(9)=62$.
-- **Main theorem.** The map $\psi(S)=P\setminus\operatorname{conv}(S)$ is **injective on the
+- **Main theorem.** The map $\psi(S)=P\setminus\mathrm{conv}(S)$ is **injective on the
   entire family** of convex-position subsets — maximality is not used — and identifies it with
-  the lattice of hull-closed subsets $W\subseteq P$ satisfying $W=P\cap\operatorname{conv}(W)$.
-- **Kill lemma.** If $S\in M(P)$ and $p\in P\setminus S$ lies outside $\operatorname{conv}(S)$,
+  the lattice of hull-closed subsets $W\subseteq P$ satisfying $W=P\cap\mathrm{conv}(W)$.
+- **Kill lemma.** If $S\in M(P)$ and $p\in P\setminus S$ lies outside $\mathrm{conv}(S)$,
   then $p$ destroys at least one vertex of $S$.
 - **Sensitivity.** On fixed $n=14$ points, $|M(P)|$ ranges over $34,\dots,121$ as a single
   rational separation parameter varies.
@@ -48,19 +47,19 @@ $P$ in convex position, $|M(P)|=1$ while the total count of convex subsets is $2
 **Theorem (duality).** Let $P$ be in general position and $S,T\subseteq P$ be in convex
 position with $|S|,|T|\ge 3$. Then
 
-$$P\setminus\operatorname{conv}(S)=P\setminus\operatorname{conv}(T)\ \Longrightarrow\ S=T.$$
+$$P\setminus\mathrm{conv}(S)=P\setminus\mathrm{conv}(T)\ \Longrightarrow\ S=T.$$
 
-*Proof.* Set $W=P\cap\operatorname{conv}(S)=P\cap\operatorname{conv}(T)$. Since
-$S\subseteq\operatorname{conv}(S)$ we get $S\subseteq W$, likewise $T\subseteq W$. As
-$S$ is in convex position, $\operatorname{vert}(S)=S$, so $\operatorname{conv}(S)
-=\operatorname{conv}(\operatorname{vert}(S))\subseteq\operatorname{conv}(T)$. By symmetry
-$\operatorname{conv}(T)\subseteq\operatorname{conv}(S)$, hence $\operatorname{conv}(S)
-=\operatorname{conv}(T)$ and $S=T$. $\square$
+*Proof.* Set $W=P\cap\mathrm{conv}(S)=P\cap\mathrm{conv}(T)$. Since
+$S\subseteq\mathrm{conv}(S)$ we get $S\subseteq W$, likewise $T\subseteq W$. As
+$S$ is in convex position, $\mathrm{vert}(S)=S$, so
+$\mathrm{conv}(S)=\mathrm{conv}(\mathrm{vert}(S))\subseteq\mathrm{conv}(T)$.
+By symmetry $\mathrm{conv}(T)\subseteq\mathrm{conv}(S)$, hence
+$\mathrm{conv}(S)=\mathrm{conv}(T)$ and $S=T$. $\square$
 
 The hypothesis that $S$ and $T$ are *maximal* is never used: the theorem holds for the whole
 family $\mathcal{C}(P)$ of convex-position subsets. Consequently $\psi$ is a bijection from
-$\mathcal{C}(P)$ onto the hull-closed subsets, so $|\mathcal{C}(P)|=|\{W\subseteq P:
-W=P\cap\operatorname{conv}(W)\}|$.
+$\mathcal{C}(P)$ onto the hull-closed subsets, so
+$|\mathcal{C}(P)|=|\{W\subseteq P:\ W=P\cap\mathrm{conv}(W)\}|$.
 
 **Corollary.** Two distinct maximal convex subsets are always distinguished by their hull
 *as a subset of $P$*.
@@ -146,7 +145,7 @@ If `make` is unavailable, fetch it directly:
 mkdir -p data/ordertypes
 BASE=http://www.ist.tugraz.at/staff/aichholzer/research/rp/triangulations/ordertypes/data
 for n in 03 04 05 06 07 08 09; do
-  curl -fsSL -o data/ordertypes/otypes$n.b08 $BASE/otypes$n.b08
+  curl -fsSL -o "data/ordertypes/otypes$n.b08" "$BASE/otypes$n.b08"
 done
 python tests/test_aak_database.py 8     # validates the reader
 ```
