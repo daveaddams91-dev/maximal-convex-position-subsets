@@ -32,8 +32,8 @@ plots = ["matplotlib>=3.7"]
 dev = ["pytest>=7.4", "pytest-cov>=4.1"]
 
 [project.urls]
-Homepage = "https://github.com/daveaddams91-dev/maximal-convex-position-subsets"
-Repository = "https://github.com/daveaddams91-dev/maximal-convex-position-subsets"
+Homepage = "https://github.com/rajveersinh-is-dev/maximal-convex-position-subsets"
+Repository = "https://github.com/rajveersinh-is-dev/maximal-convex-position-subsets"
 
 [tool.setuptools]
 package-dir = { "" = "src" }

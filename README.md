@@ -215,7 +215,7 @@ We state these plainly, because they bound what the results are worth.
             of a Planar Point Set},
   note   = {Preprint},
   year   = {2026},
-  url    = {https://github.com/daveaddams91-dev/maximal-convex-position-subsets}
+  url    = {https://github.com/rajveersinh-is-dev/maximal-convex-position-subsets}
 }
 ```
 
