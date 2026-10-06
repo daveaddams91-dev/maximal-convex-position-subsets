@@ -140,10 +140,60 @@ def forbidden_quadruples(Q: Configuration) -> list[frozenset[int]]:
     (minimal hitting sets) of the hypergraph ``forbidden_quadruples(Q)``.
     """
     n = len(Q)
+    chiro = {}
+    for i in range(n):
+        for j in range(i + 1, n):
+            for k in range(j + 1, n):
+                chiro[(i, j, k)] = orient(Q[i], Q[j], Q[k])
+
+    def o(i: int, j: int, k: int) -> int:
+        if i < j:
+            if j < k: return chiro[(i, j, k)]
+            elif i < k: return -chiro[(i, k, j)]
+            else: return chiro[(k, i, j)]
+        else: # i > j
+            if i < k: return -chiro[(j, i, k)]
+            elif j < k: return chiro[(j, k, i)]
+            else: return -chiro[(k, j, i)]
+
     out: list[frozenset[int]] = []
-    for a, b, c, d in combinations(range(n), 4):
-        if _strictly_inside(Q, a, b, c, d):
-            out.append(frozenset((a, b, c, d)))
+    for a in range(n):
+        for b in range(a + 1, n):
+            for c in range(b + 1, n):
+                s_abc = chiro[(a, b, c)]
+                if s_abc == 0:
+                    continue
+                for d in range(c + 1, n):
+                    # a inside bcd
+                    s1 = o(b, c, a)
+                    if s1 != 0:
+                        s2 = o(c, d, a)
+                        if s1 == s2 and s2 == o(d, b, a):
+                            out.append(frozenset((a, b, c, d)))
+                            continue
+
+                    # b inside acd
+                    s1 = o(a, c, b)
+                    if s1 != 0:
+                        s2 = o(c, d, b)
+                        if s1 == s2 and s2 == o(d, a, b):
+                            out.append(frozenset((a, b, c, d)))
+                            continue
+
+                    # c inside abd
+                    s1 = s_abc
+                    s2 = o(b, d, c)
+                    if s1 == s2 and s2 == o(d, a, c):
+                        out.append(frozenset((a, b, c, d)))
+                        continue
+
+                    # d inside abc
+                    s1 = o(a, b, d)
+                    if s1 != 0:
+                        s2 = o(b, c, d)
+                        if s1 == s2 and s2 == o(c, a, d):
+                            out.append(frozenset((a, b, c, d)))
+                            continue
     return out
 
 
@@ -205,15 +255,8 @@ def maximal_convex_subsets_fast(
         for y in F:
             by_vertex[y].append(mask & ~(1 << y))
 
-    results: set[Subset] = set()
+    results: set[int] = set()
     nodes = 0
-
-    def compatible(S_mask: int, y: int) -> bool:
-        inv = ~S_mask
-        for m in by_vertex[y]:
-            if m & inv == 0:
-                return False
-        return True
 
     def rec(S_mask: int, cand: int) -> None:
         """Enumerate maximal independent sets that contain ``S_mask``.
@@ -231,7 +274,7 @@ def maximal_convex_subsets_fast(
         """
         nonlocal nodes
         if cand == 0:
-            results.add(frozenset(v for v in range(n) if (S_mask >> v) & 1))
+            results.add(S_mask)
             return
         m = cand
         while m:
@@ -247,16 +290,25 @@ def maximal_convex_subsets_fast(
             S2 = S_mask | b
             cand2 = 0
             k = cand & ~b
+
+            inv = ~S2
             while k:
                 b2 = k & -k
                 w = b2.bit_length() - 1
                 k ^= b2
-                if compatible(S2, w):
+
+                # Inlined compatibility check
+                ok = True
+                for mask in by_vertex[w]:
+                    if mask & inv == 0:
+                        ok = False
+                        break
+                if ok:
                     cand2 |= b2
             rec(S2, cand2)
 
     rec(0, full)
-    res = list(results)
+    res = [frozenset(v for v in range(n) if (S >> v) & 1) for S in results]
     res.sort(key=lambda S: (len(S), sorted(S)))
     return res
 
