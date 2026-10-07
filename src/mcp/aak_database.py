@@ -18,9 +18,10 @@ count exactly as expected.
 
 from __future__ import annotations
 
-import struct
 from pathlib import Path
 from typing import Iterator
+import struct
+
 
 KNOWN_ORDER_TYPE_COUNTS = {
     3: 1,
@@ -41,6 +42,15 @@ def width_for(n: int) -> int:
 
 
 def record_size(n: int) -> int:
+    """Record size.
+    
+    Args:
+        n:
+    
+    Returns:
+        The computed result
+    
+    """
     return 2 * n * width_for(n)
 
 
@@ -61,8 +71,27 @@ def read_realisations(path: str | Path, n: int) -> Iterator[list[tuple[int, int]
 
 
 def count_realisations(path: str | Path, n: int) -> int:
+    """Count realisations.
+    
+    Args:
+        path:
+        n:
+    
+    Returns:
+        The computed result
+    
+    """
     return Path(path).stat().st_size // record_size(n)
 
 
 def filename_for(n: int) -> str:
+    """Filename for.
+    
+    Args:
+        n:
+    
+    Returns:
+        The computed result
+    
+    """
     return f"otypes{n:02d}.b08" if n <= 8 else f"otypes{n:02d}.b16"
