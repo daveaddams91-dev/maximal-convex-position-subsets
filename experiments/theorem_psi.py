@@ -25,17 +25,19 @@ and additionally tries hard to break it with random and structured configuration
 
 from __future__ import annotations
 
-import random
-import sys
 from fractions import Fraction as Fr
 from itertools import combinations
 from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+import sys
 
 from mcp.aak_database import KNOWN_ORDER_TYPE_COUNTS, filename_for, read_realisations  # noqa: E402
 from mcp.convexposition import convex_hull_vertices, in_convex_position  # noqa: E402
 from mcp.exactgeom import as_configuration, in_general_position, orient  # noqa: E402
+import random
+
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -57,7 +59,8 @@ def psi(Q, S):
     h = convex_hull_vertices(Q, S)
     inside = frozenset(
         i for i in range(n)
-        if all(orient(Q[a], Q[b], Q[i]) >= 0 for a, b in zip(h, h[1:] + h[:1]))
+        if all(orient(Q[a], Q[b], Q[i]) >= 0 for a, b in zip(h, h[1:] + h[:
+            1]))
     )
     return frozenset(i for i in range(n) if i not in inside)
 
@@ -84,7 +87,7 @@ def hull_closed(Q):
     return out
 
 
-def check_config(Q):
+def check_config(Q) -> tuple:
     """Verify T1 (injectivity of psi on convex-position sets of size >= 3) and
     the size identity |C_>=3(P)| = |{W : |W| >= 3, W = P ∩ conv(W)}|."""
     C = convex_position_family(Q)          # |S| >= 3
@@ -97,7 +100,13 @@ def check_config(Q):
     return None, (len(C), len(H))
 
 
-def main():
+def main() -> int:
+    """Entry point — parse arguments and run the main computation.
+    
+    Returns:
+        int: Result of type int
+    
+    """
     print("=== exhaustive check over all order types up to n = 8 ===")
     tot = 0
     for n in range(3, 9):
