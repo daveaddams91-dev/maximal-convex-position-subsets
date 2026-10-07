@@ -26,10 +26,14 @@ from __future__ import annotations
 import json
 import pathlib
 import re
-import shutil
 import subprocess
 import sys
 import tempfile
+
+import shutil
+
+_RE________ = re.compile(r"`[^`]*`")
+
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 FILES = ["README.md", "RELEASE_NOTES.md", "docs/methodology.md", "docs/mathematical_notes.md"]
@@ -64,7 +68,7 @@ def extract_spans(text: str):
     """Yield (lineno, math) for ``$...$`` spans, skipping inline code spans."""
     for lineno, line in enumerate(text.splitlines(), 1):
         # Blank out inline code so `$` inside backticks is ignored.
-        s = re.sub(r"`[^`]*`", lambda m: "\x00" * len(m.group(0)), line)
+        s = re.sub(_RE________, lambda m: "\x00" * len(m.group(0)), line)
         i = 0
         while i < len(s):
             if s[i] == "$":
@@ -80,6 +84,12 @@ def extract_spans(text: str):
 
 
 def main() -> int:
+    """Entry point — parse arguments and run the main computation.
+    
+    Returns:
+        int: Result of type int
+    
+    """
     if not shutil.which("node"):
         print("node not found; skipping the KaTeX render check (not fatal)")
         return 0
