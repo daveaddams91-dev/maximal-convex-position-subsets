@@ -15,9 +15,12 @@ Run:  python experiments/check_markdown_math.py
 
 from __future__ import annotations
 
+from pathlib import Path
 import re
 import sys
-from pathlib import Path
+
+_RE________ = re.compile(r"`[^`]*`")
+
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -101,7 +104,7 @@ def extract_math(text: str) -> list[tuple[int, str, str]]:
                 buf = []
             continue
         # strip inline code before looking for math
-        no_code = re.sub(r"`[^`]*`", "", line)
+        no_code = re.sub(_RE________, "", line)
         if "$$" in no_code:
             head, _, tail = no_code.partition("$$")
             if tail.strip():
@@ -119,6 +122,12 @@ def extract_math(text: str) -> list[tuple[int, str, str]]:
 
 
 def main() -> int:
+    """Entry point — parse arguments and run the main computation.
+    
+    Returns:
+        int: Result of type int
+    
+    """
     files = sorted(
         [ROOT / "README.md", ROOT / "RELEASE_NOTES.md"]
         + list((ROOT / "docs").glob("*.md"))
