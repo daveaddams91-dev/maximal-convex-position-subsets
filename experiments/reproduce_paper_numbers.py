@@ -15,7 +15,6 @@ import json
 import sys
 from collections import Counter
 from fractions import Fraction as F
-from itertools import combinations
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
@@ -32,6 +31,17 @@ DATA = ROOT / "data" / "ordertypes"
 
 
 def in_closed_conv(Q, S, i) -> bool:
+    """In closed conv.
+    
+    Args:
+        Q:
+        S:
+        i:
+    
+    Returns:
+        bool: Result of type bool
+    
+    """
     if i in S:
         return True
     h = convex_hull_vertices(Q, S)
@@ -41,6 +51,17 @@ def in_closed_conv(Q, S, i) -> bool:
 
 
 def strictly_inside(Q, S, i) -> bool:
+    """Strictly inside.
+    
+    Args:
+        Q:
+        S:
+        i:
+    
+    Returns:
+        bool: Result of type bool
+    
+    """
     if i in S:
         return False
     h = convex_hull_vertices(Q, S)
@@ -50,6 +71,15 @@ def strictly_inside(Q, S, i) -> bool:
 
 
 def layer_table(n_max=8):
+    """Layer table.
+    
+    Args:
+        n_max (int):
+    
+    Returns:
+        The computed result
+    
+    """
     out = {}
     for n in range(3, n_max + 1):
         path = DATA / filename_for(n)
@@ -64,7 +94,16 @@ def layer_table(n_max=8):
     return out
 
 
-def kill_histogram(n_max=7):
+def kill_histogram(n_max=7) -> dict:
+    """Kill histogram.
+    
+    Args:
+        n_max (int):
+    
+    Returns:
+        dict: Result of type dict
+    
+    """
     hist = Counter()
     pairs = 0
     violations = 0
@@ -94,6 +133,16 @@ def kill_histogram(n_max=7):
 
 
 def twin_pairs(k: int, sep: F):
+    """Twin pairs.
+    
+    Args:
+        k:
+        sep:
+    
+    Returns:
+        The computed result
+    
+    """
     pts = []
     for i in range(k):
         t = F(2 * i + 1, 2 * k)
@@ -106,6 +155,16 @@ def twin_pairs(k: int, sep: F):
 
 def twin_table(ks=(3, 4, 5, 6, 7),
                seps=("1/2", "1/4", "1/8", "1/16", "1/32", "1/64", "1/128")):
+    """Twin table.
+    
+    Args:
+        ks (tuple):
+        seps (tuple):
+    
+    Returns:
+        The computed result
+    
+    """
     from mcp.convexposition import maximal_convex_subsets_fast
 
     rows = {}
@@ -123,6 +182,9 @@ def twin_table(ks=(3, 4, 5, 6, 7),
 
 
 def main():
+    """Entry point — parse arguments and run the main computation.
+    
+    """
     out = {}
     faak = ROOT / "results" / "f_aak.json"
     if faak.exists():

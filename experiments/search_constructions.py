@@ -11,15 +11,17 @@ All computations are exact (rational coordinates, integer orientation tests).
 
 from __future__ import annotations
 
-import sys
 from fractions import Fraction as F
 from math import cos, sin, pi
 from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+import sys
 
 from mcp.convexposition import maximal_convex_subsets_fast  # noqa: E402
 from mcp.exactgeom import as_configuration, in_general_position  # noqa: E402
+
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -54,6 +56,15 @@ def nested_triangle(n: int, ratio: Fraction) -> list[tuple[F, F]]:
 
 
 def count(pts):
+    """Count.
+    
+    Args:
+        pts:
+    
+    Returns:
+        The computed result
+    
+    """
     Q = as_configuration(pts)
     if not in_general_position(Q):
         return None
@@ -61,6 +72,9 @@ def count(pts):
 
 
 def main():
+    """Entry point — parse arguments and run the main computation.
+    
+    """
     print("=== twin-pair constructions: |M(P)| for n = 2k points ===")
     seps = ["1/2", "1/4", "1/8", "1/16", "1/32", "1/64", "1/128", "1/256", "1/512"]
     print(f"{'k':>3} {'n':>3} " + " ".join(f"{s:>7}" for s in seps))

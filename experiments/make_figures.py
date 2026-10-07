@@ -25,6 +25,12 @@ FIGDIR.mkdir(exist_ok=True)
 
 
 def _style(ax):
+    """Style.
+    
+    Args:
+        ax:
+    
+    """
     ax.spines[["top", "right"]].set_visible(False)
     ax.grid(True, alpha=0.25, linewidth=0.6)
     ax.set_axisbelow(True)
@@ -192,6 +198,9 @@ def fig_extremal_example() -> None:
 
 
 def main() -> None:
+    """Entry point — parse arguments and run the main computation.
+    
+    """
     fig_growth()
     fig_spectrum()
     if (ROOT / "results" / "paper_numbers.json").exists():

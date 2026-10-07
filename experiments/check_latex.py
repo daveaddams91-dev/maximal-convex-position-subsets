@@ -16,6 +16,12 @@ TEX = Path(__file__).resolve().parents[1] / "paper" / "main.tex"
 
 
 def main() -> int:
+    """Entry point — parse arguments and run the main computation.
+    
+    Returns:
+        int: Result of type int
+    
+    """
     src = TEX.read_text(encoding="utf-8")
     # Strip verbatim/comment content for the checks that care about structure.
     body = re.sub(r"(?m)%.*$", "", src)
