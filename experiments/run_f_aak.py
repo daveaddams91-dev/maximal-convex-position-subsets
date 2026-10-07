@@ -7,23 +7,32 @@ realisation per order type, and |M(P)| depends only on the order type.
 
 from __future__ import annotations
 
+from collections import Counter
+from pathlib import Path
 import json
 import sys
 import time
-from collections import Counter
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from mcp.aak_database import filename_for, read_realisations  # noqa: E402
 from mcp.convexposition import maximal_convex_subsets  # noqa: E402
 from mcp.exactgeom import as_configuration  # noqa: E402
+
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data" / "ordertypes"
 
 
 def main(n_max: int, out_name: str) -> None:
+    """Entry point — parse arguments and run the main computation.
+    
+    Args:
+        n_max:
+        out_name:
+    
+    """
     results_path = ROOT / "results" / out_name
     results = json.loads(results_path.read_text()) if results_path.exists() else {}
     for n in range(3, n_max + 1):
