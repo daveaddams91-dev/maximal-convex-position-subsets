@@ -255,8 +255,15 @@ def maximal_convex_subsets_fast(
         for y in F:
             by_vertex[y].append(mask & ~(1 << y))
 
+    for x in range(n):
+        by_vertex[x] = tuple(set(by_vertex[x]))
+
+    by_vertex_tuple = tuple(by_vertex)
+
     results: set[int] = set()
     nodes = 0
+
+    bit_len_dict = {1 << i: i for i in range(n)}
 
     def rec(S_mask: int, cand: int) -> None:
         """Enumerate maximal independent sets that contain ``S_mask``.
@@ -294,13 +301,13 @@ def maximal_convex_subsets_fast(
             inv = ~S2
             while k:
                 b2 = k & -k
-                w = b2.bit_length() - 1
+                w = bit_len_dict[b2]
                 k ^= b2
 
                 # Inlined compatibility check
                 ok = True
-                for mask in by_vertex[w]:
-                    if mask & inv == 0:
+                for mask in by_vertex_tuple[w]:
+                    if not (mask & inv):
                         ok = False
                         break
                 if ok:
