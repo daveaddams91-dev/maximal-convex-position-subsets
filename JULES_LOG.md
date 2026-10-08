@@ -10,3 +10,7 @@ Optimized the performance of `forbidden_quadruples` and `maximal_convex_subsets_
 ### 2026-10-07: Performance Optimization in Convex Position Subsets
 
 Identified the `maximal_convex_subsets_fast` function in `src/mcp/convexposition.py` as a critical performance bottleneck. Optimized its inner loop by precomputing bit lengths in a dictionary (`bit_len_dict`), which eliminates the overhead of `.bit_length()`. Also deduplicated elements in `by_vertex` by converting them to `tuple` of `tuple`s, bypassing list iteration overheads. These algorithmic and structural adjustments yielded a roughly 2x performance increase on the benchmark suite `test_fast_agreement.py` execution time, reducing its runtime from ~32s to ~14.8s.
+
+### 2026-10-08: Performance optimization in convex hull sorting
+
+Optimized the primary point sorting bottleneck in `convex_hull_vertices` by introducing a hybrid float-fraction sorting key (`key=lambda i: (float(Q[i][0]), float(Q[i][1]), Q[i][0], Q[i][1])`). This change drastically reduces the number of slow Python `fractions.Fraction` comparisons by using floating-point approximations for fast sorting, falling back to exact rational values only when coordinates are numerically close. The optimization cuts the overall test suite time from 34s to 29s and improves the performance of the heaviest calculations without compromising the exact arithmetic guarantees.

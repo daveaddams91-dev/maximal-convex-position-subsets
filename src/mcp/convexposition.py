@@ -33,6 +33,19 @@ Subset = frozenset[int]
 # --------------------------------------------------------------------------- #
 
 
+def _sort_key(p: Point) -> tuple[float, Fraction, float, Fraction]:
+    """A hybrid sorting key for points to speed up comparisons."""
+    try:
+        fx = float(p[0])
+    except OverflowError:
+        fx = float('inf') if p[0] > 0 else float('-inf')
+    try:
+        fy = float(p[1])
+    except OverflowError:
+        fy = float('inf') if p[1] > 0 else float('-inf')
+    return (fx, p[0], fy, p[1])
+
+
 def convex_hull_vertices(Q: Configuration, idx: Iterable[int] | None = None) -> list[int]:
     """Vertices of ``conv(Q)`` restricted to the labels in ``idx``.
 
@@ -44,7 +57,7 @@ def convex_hull_vertices(Q: Configuration, idx: Iterable[int] | None = None) -> 
     ids = sorted(range(len(Q)) if idx is None else idx)
     if len(ids) < 3:
         return ids
-    pts = sorted(ids, key=lambda i: (Q[i][0], Q[i][1]))
+    pts = sorted(ids, key=lambda i: _sort_key(Q[i]))
     lower: list[int] = []
     for i in pts:
         while len(lower) >= 2 and orient(Q[lower[-2]], Q[lower[-1]], Q[i]) <= 0:
